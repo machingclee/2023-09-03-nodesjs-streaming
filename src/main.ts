@@ -16,16 +16,16 @@ app.get("/download", async (req, res) => {
   const objectKey1 = "assets/fonts/FreightTextProMedium-Italic.woff2";
   const objectKey2 = "assets/fonts/FreightTextProMedium-Italic.woff";
 
-  const buffer1 = await awsS3Util.getFileBuffer({ bucketName, objectKey: objectKey1 });
-  const buffer2 = await awsS3Util.getFileBuffer({ bucketName, objectKey: objectKey2 });
+  const stream1 = await awsS3Util.getFileStream({ bucketName, objectKey: objectKey1 });
+  const stream2 = await awsS3Util.getFileStream({ bucketName, objectKey: objectKey2 });
 
   const zipStream = streamUtil.getZipStream();
 
-  if (buffer1) {
-    zipStream.append(buffer1, { name: "FreightTextProMedium-Italic.woff2" });
+  if (stream1) {
+    zipStream.append(stream1, { name: "FreightTextProMedium-Italic.woff2" });
   }
-  if (buffer2) {
-    zipStream.append(buffer2, { name: "FreightTextProMedium-Italic.woff" });
+  if (stream2) {
+    zipStream.append(stream2, { name: "FreightTextProMedium-Italic.woff" });
   }
   zipStream.finalize()
   zipStream.pipe(res);

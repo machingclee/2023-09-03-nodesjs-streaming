@@ -1,25 +1,12 @@
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import stream, { Readable } from 'stream';
-import util from 'util';
-import { PassThrough } from "stream";
+import AWS from "aws-sdk";
 
-const s3Client = new S3Client({ region: "ap-northeast-1" });
-const getStream = util.promisify(stream.pipeline);
+const S3 = new AWS.S3();
 
-async function getFileBuffer(props: { bucketName: string, objectKey: string }) {
-  const middle = new PassThrough();
-
-  const { bucketName, objectKey: key } = props;
-  const command = new GetObjectCommand({ Bucket: bucketName, Key: key });
-  const response = await s3Client.send(command);
-  const bytes = await response.Body?.transformToByteArray();
-  if (!bytes) {
-    return null;
-  } else {
-   return Buffer.from(bytes);
-  }
+async function getFileStream(props: { bucketName: string, objectKey: string }) {
+  const { bucketName, objectKey } = props;
+  return S3.getObject({ Bucket: bucketName, Key: objectKey }).createReadStream();
 }
 
 export default {
-  getFileBuffer
+  getFileStream
 }
